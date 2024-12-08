@@ -3,7 +3,6 @@ package io.github.madkarmaa.url2qr
 import android.content.Intent
 import android.graphics.BitmapFactory
 import android.os.Bundle
-import android.util.Patterns
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.Toast
@@ -11,16 +10,16 @@ import androidx.activity.ComponentActivity
 import androidx.activity.enableEdgeToEdge
 import androidx.core.view.WindowCompat
 import androidx.core.view.setPadding
-import qrcode.QRCode
-import qrcode.color.Colors
 
 const val QR_CODE_SIZE: Int = 40
 
 class MainActivity : ComponentActivity() {
     private var sharedUrl: String = ""
 
+    private fun showToast(text: String) = Toast.makeText(this, text, Toast.LENGTH_LONG).show()
+
     private fun showToastAndExit(text: String) {
-        Toast.makeText(this, text, Toast.LENGTH_LONG).show()
+        this.showToast(text)
         this.finishAndRemoveTask()
     }
 
@@ -83,13 +82,3 @@ class MainActivity : ComponentActivity() {
         this.finishAndRemoveTask()
     }
 }
-
-fun isWebUrl(text: String): Boolean = Patterns.WEB_URL.matcher(text).matches()
-
-fun stringToQRCodeImage(text: String): ByteArray =
-    QRCode
-        .ofSquares()
-        .withSize(QR_CODE_SIZE)
-        .withBackgroundColor(Colors.TRANSPARENT)
-        .build(text)
-        .renderToBytes()
