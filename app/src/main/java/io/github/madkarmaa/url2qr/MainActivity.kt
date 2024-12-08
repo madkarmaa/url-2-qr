@@ -57,6 +57,7 @@ class MainActivity : ComponentActivity() {
         val imageView = ImageView(this).apply {
             setImageBitmap(bitmap)
             contentDescription = "QR Code for $sharedUrl"
+            scaleType = ImageView.ScaleType.CENTER_INSIDE
         }
 
         val frameLayout = FrameLayout(this).apply {
