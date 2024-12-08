@@ -37,10 +37,17 @@ jobs:
           keyStorePassword: ${{ secrets.KEY_STORE_PASSWORD }}
           keyPassword: ${{ secrets.KEY_PASSWORD }}
 
+      - name: Rename APK
+        run: |
+          APK_FILE=$(find . -type f -name "*-signed.apk")
+          if [ -n "$APK_FILE" ]; then
+            mv "$APK_FILE" "$(dirname "$APK_FILE")/app-signed.apk"
+          fi
+
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: signed-apks
-          path: app/build/outputs/apk/release/*-signed.apk
+          name: app-signed
+          path: app/build/outputs/apk/release/app-signed.apk
           if-no-files-found: error
           retention-days: 20
