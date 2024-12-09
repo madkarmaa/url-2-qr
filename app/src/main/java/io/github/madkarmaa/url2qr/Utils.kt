@@ -6,10 +6,10 @@ import qrcode.color.Colors
 
 fun isWebUrl(text: String): Boolean = Patterns.WEB_URL.matcher(text).matches()
 
-fun stringToQRCodeImage(text: String): ByteArray =
+fun stringToQRCodeImage(text: String, qrSize: Int = 40): ByteArray =
     QRCode
         .ofSquares()
-        .withSize(QR_CODE_SIZE)
+        .withSize(qrSize)
         .withBackgroundColor(Colors.TRANSPARENT)
         .build(text)
         .renderToBytes()

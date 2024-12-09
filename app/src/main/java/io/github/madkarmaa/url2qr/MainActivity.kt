@@ -11,8 +11,6 @@ import androidx.activity.enableEdgeToEdge
 import androidx.core.view.WindowCompat
 import androidx.core.view.setPadding
 
-const val QR_CODE_SIZE: Int = 40
-
 class MainActivity : ComponentActivity() {
     private var sharedUrl: String = ""
 
