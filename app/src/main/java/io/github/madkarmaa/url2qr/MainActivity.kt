@@ -27,7 +27,7 @@ class MainActivity : ComponentActivity() {
 
         // dark status bar icons
         WindowCompat
-            .getInsetsController(window, window.decorView)
+            .getInsetsController(this.window, this.window.decorView)
             .isAppearanceLightStatusBars = true
     }
 
