@@ -3,13 +3,42 @@ package io.github.madkarmaa.url2qr
 import android.content.Intent
 import android.graphics.BitmapFactory
 import android.os.Bundle
-import android.widget.FrameLayout
-import android.widget.ImageView
 import android.widget.Toast
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.composed
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
-import androidx.core.view.setPadding
+
+// https://stackoverflow.com/a/66703893
+fun Modifier.clickableWithoutEffect(
+    onClick: () -> Unit
+) = composed(
+    factory = {
+        then(
+            Modifier.clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null,
+                onClick = { onClick() }
+            )
+        )
+    }
+)
 
 class MainActivity : ComponentActivity() {
     private var sharedUrl: String = ""
@@ -17,27 +46,27 @@ class MainActivity : ComponentActivity() {
     private fun showToast(text: String) = Toast.makeText(this, text, Toast.LENGTH_LONG).show()
 
     private fun showToastAndExit(text: String) {
-        this.showToast(text)
-        this.finishAndRemoveTask()
+        showToast(text)
+        finishAndRemoveTask()
     }
 
     private fun setupStatusBar() {
         // transparent status bar
-        this.enableEdgeToEdge()
+        enableEdgeToEdge()
 
         // dark status bar icons
         WindowCompat
-            .getInsetsController(this.window, this.window.decorView)
+            .getInsetsController(window, window.decorView)
             .isAppearanceLightStatusBars = true
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        this.setupStatusBar()
+        setupStatusBar()
 
         if (intent?.action != Intent.ACTION_SEND) {
-            this.showToastAndExit("Share a URL to me!")
+            showToastAndExit("Share a URL to me!")
             return
         }
 
@@ -45,39 +74,57 @@ class MainActivity : ComponentActivity() {
         sharedUrl = sharedUrl.trim()
 
         if (sharedUrl.isEmpty() || !isWebUrl(sharedUrl)) {
-            this.showToastAndExit("Please provide a valid URL!")
+            showToastAndExit("Please provide a valid URL!")
             return
         }
 
         val qrImageBlob = stringToQRCodeImage(sharedUrl)
-        val bitmap = BitmapFactory.decodeByteArray(qrImageBlob, 0, qrImageBlob.size)
 
-        val imageView = ImageView(this).apply {
-            setImageBitmap(bitmap)
-            contentDescription = "QR code for $sharedUrl"
-            scaleType = ImageView.ScaleType.CENTER_INSIDE
+        setContent {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(20.dp),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                QRCodeBox(qrImageBlob)
+            }
         }
-
-        val frameLayout = FrameLayout(this).apply {
-            val paddingInDp = 30
-            val paddingInPx = (paddingInDp * resources.displayMetrics.density).toInt()
-
-            setPadding(paddingInPx)
-            addView(imageView)
-        }
-
-        setContentView(frameLayout)
     }
 
     // when the app is exited
     override fun onDestroy() {
         super.onDestroy()
-        this.finishAndRemoveTask()
+        finishAndRemoveTask()
     }
 
     // when the app is no longer in the foreground
     override fun onStop() {
         super.onStop()
-        this.finishAndRemoveTask()
+        finishAndRemoveTask()
+    }
+}
+
+@Composable
+fun QRCodeBox(qrImageBlob: ByteArray) {
+    val bitmap = BitmapFactory.decodeByteArray(qrImageBlob, 0, qrImageBlob.size)
+
+    fun saveToGallery() {
+        // TODO: Save the QR code to the gallery
+    }
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickableWithoutEffect {
+                saveToGallery()
+            }
+    ) {
+        Image(
+            bitmap = bitmap.asImageBitmap(),
+            contentDescription = "QR code",
+            modifier = Modifier.fillMaxWidth()
+        )
     }
 }
