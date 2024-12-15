@@ -8,6 +8,7 @@ import android.util.Patterns
 import android.widget.Toast
 import qrcode.QRCode
 import qrcode.color.Colors
+import java.io.FileNotFoundException
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import kotlin.random.Random
@@ -30,10 +31,11 @@ fun getCurrentDateString(): String {
     val now = LocalDateTime.now()
     val dateFormatter = DateTimeFormatter.ofPattern("yyyyMMdd")
     val randomSuffix = Random.nextInt(0, 1000000).toString().padStart(6, '0')
-    return "${now.format(dateFormatter)}$randomSuffix"
+    return "${now.format(dateFormatter)}-$randomSuffix"
 }
 
-fun saveImage(context: Context, bitmap: Bitmap, fileName: String) {
+@Throws(FileNotFoundException::class)
+fun savePNGImage(context: Context, bitmap: Bitmap, fileName: String) {
     val contentValues = ContentValues().apply {
         put(MediaStore.Images.Media.DISPLAY_NAME, fileName)
         put(MediaStore.Images.Media.MIME_TYPE, "image/png")

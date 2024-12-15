@@ -26,6 +26,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
+import java.io.FileNotFoundException
 
 // https://stackoverflow.com/a/66703893
 fun Modifier.clickableWithoutEffect(
@@ -110,14 +111,22 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun QRCodeBox(context: Context, qrImageBlob: ByteArray) {
     val bitmap = BitmapFactory.decodeByteArray(qrImageBlob, 0, qrImageBlob.size)
-    val filename = "qr{${getCurrentDateString()}}.png"
+    val filename = "${context.packageName}-${getCurrentDateString()}.png"
+
+    fun save() {
+        try {
+            savePNGImage(context, bitmap, filename)
+            showToast(context, "Saved!")
+        } catch (e: FileNotFoundException) {
+            showToast(context, "Failed to save!")
+        }
+    }
 
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .clickableWithoutEffect {
-                saveImage(context, bitmap, filename)
-                showToast(context, "Saved!")
+                save()
             }
     ) {
         Image(
