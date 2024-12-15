@@ -1,13 +1,14 @@
 package io.github.madkarmaa.url2qr
 
+import android.content.Context
 import android.content.Intent
 import android.graphics.BitmapFactory
 import android.os.Bundle
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -21,6 +22,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
@@ -43,10 +45,8 @@ fun Modifier.clickableWithoutEffect(
 class MainActivity : ComponentActivity() {
     private var sharedUrl: String = ""
 
-    private fun showToast(text: String) = Toast.makeText(this, text, Toast.LENGTH_LONG).show()
-
     private fun showToastAndExit(text: String) {
-        showToast(text)
+        showToast(applicationContext, text)
         finishAndRemoveTask()
     }
 
@@ -84,11 +84,12 @@ class MainActivity : ComponentActivity() {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
+                    .background(Color.White)
                     .padding(20.dp),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                QRCodeBox(qrImageBlob)
+                QRCodeBox(applicationContext, qrImageBlob)
             }
         }
     }
@@ -107,18 +108,16 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun QRCodeBox(qrImageBlob: ByteArray) {
+fun QRCodeBox(context: Context, qrImageBlob: ByteArray) {
     val bitmap = BitmapFactory.decodeByteArray(qrImageBlob, 0, qrImageBlob.size)
-
-    fun saveToGallery() {
-        // TODO: Save the QR code to the gallery
-    }
+    val filename = "qr{${getCurrentDateString()}}.png"
 
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .clickableWithoutEffect {
-                saveToGallery()
+                saveImage(context, bitmap, filename)
+                showToast(context, "Saved!")
             }
     ) {
         Image(
